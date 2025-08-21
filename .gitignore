@@ -1,3 +1,4 @@
 artifacts
 remix-tests
 state.json
+.deps
