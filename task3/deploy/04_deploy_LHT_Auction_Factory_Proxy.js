@@ -22,6 +22,7 @@ module.exports = async function ({ getNamedAccounts, deployments, network }) {
     waitConfirmations: network.name === "hardhat" ? 1 : 6,
     proxy: {
       proxyContract: "OpenZeppelinTransparentProxy",
+      viaAdminContract: "DefaultProxyAdmin",
       execute: {
         init: {
           methodName: "initialize",
