@@ -6,7 +6,7 @@ import "./LHT_Auction.sol";
 contract LHT_Auction_V2 is LHT_Auction {
     
     //获取拍卖合约版本信息
-    function getAuctionVersion() external pure override returns (
+    function getAuctionVersion() external override pure returns (
         string memory version
     ) {
         return "2.0";

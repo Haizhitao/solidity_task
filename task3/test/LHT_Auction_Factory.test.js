@@ -19,14 +19,9 @@ describe("LHT_Auction_Factory", function () {
     const LHT_Auction_Factory = await ethers.getContractFactory("LHT_Auction_Factory");
     const lhtAuctionFactoryImplementation = await LHT_Auction_Factory.deploy();
 
-    // 部署工厂代理合约
-    const lhtAuctionFactoryProxy = await ethers.deployProxy(
-      lhtAuctionFactoryImplementation,
-      [lhtAuctionImplementation.address, deployer.address],
-      { initializer: 'initialize' }
-    );
-
-    lhtAuctionFactory = await ethers.getContractAt("LHT_Auction_Factory", lhtAuctionFactoryProxy.address);
+    // 部署工厂合约并直接初始化（测试环境简化）
+    lhtAuctionFactory = await LHT_Auction_Factory.deploy();
+    await lhtAuctionFactory.initialize(await lhtAuctionImplementation.getAddress(), deployer.address);
   });
 
   describe("部署", function () {

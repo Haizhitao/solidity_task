@@ -1,9 +1,8 @@
 const { ethers } = require("hardhat");
 
-module.exports = async function ({ getNamedAccounts, deployments, getChainId }) {
+module.exports = async function ({ getNamedAccounts, deployments, network }) {
   const { log, get } = deployments;
   const { deployer } = await getNamedAccounts();
-  const chainId = await getChainId();
 
   log("🚀 开始设置价格预言机...");
 
@@ -22,7 +21,7 @@ module.exports = async function ({ getNamedAccounts, deployments, getChainId }) 
   };
 
   // 本地网络使用模拟价格
-  if (chainId == "31337") {
+  if (network.name === "hardhat" || network.name === "localhost") {
     log("🔧 本地网络，跳过价格预言机设置");
     return;
   }

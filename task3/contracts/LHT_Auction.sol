@@ -297,7 +297,7 @@ contract LHT_Auction is Initializable, UUPSUpgradeable {
     }
 
     //获取拍卖合约版本信息
-    function getAuctionVersion() external pure returns (
+    function getAuctionVersion() external pure virtual returns (
         string memory version
     ) {
         return "1.0";

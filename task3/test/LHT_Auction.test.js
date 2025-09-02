@@ -16,14 +16,15 @@ describe("LHT_Auction", function () {
     lhtAuction = await LHT_Auction.deploy();
     await lhtAuction.initialize();
 
-    // 设置价格预言机（模拟）
-    const mockPriceFeed = {
-      latestRoundData: () => Promise.resolve([0, ethers.parseUnits("2000", 8), 0, 0, 0]),
-      decimals: () => 8
-    };
+    // 部署模拟价格预言机合约
+    const MockPriceFeed = await ethers.getContractFactory("contracts/mocks/MockPriceFeed.sol:MockPriceFeed");
+    const mockPriceFeed = await MockPriceFeed.deploy(
+      8, // decimals
+      ethers.parseUnits("2000", 8) // initial price
+    );
     
-    // 模拟价格预言机设置
-    await lhtAuction.setPriceFeed(ethers.ZeroAddress, mockPriceFeed);
+    // 设置价格预言机
+    await lhtAuction.setPriceFeed(ethers.ZeroAddress, await mockPriceFeed.getAddress());
   });
 
   describe("初始化", function () {
@@ -67,15 +68,15 @@ describe("LHT_Auction", function () {
       await lhtNFT.mintNFT(deployer.address, "ipfs://test");
     });
 
-    it("应该能够创建拍卖", async function () {
-      await expect(
-        lhtAuction.createAuction(
-          lhtNFT.address, 1, 3600, ethers.parseEther("0.1"), ethers.ZeroAddress
-        )
-      ).to.not.be.reverted;
+         it("应该能够创建拍卖", async function () {
+       await expect(
+         lhtAuction.createAuction(
+           await lhtNFT.getAddress(), 0, 3600, ethers.parseEther("0.1"), ethers.ZeroAddress
+         )
+       ).to.not.be.reverted;
 
-      const auctionInfo = await lhtAuction.getAuctionInfo(0);
-      expect(auctionInfo.nftContract).to.equal(lhtNFT.address);
+       const auctionInfo = await lhtAuction.getAuctionInfo(0);
+       expect(auctionInfo.nftContract).to.equal(await lhtNFT.getAddress());
       expect(auctionInfo.nftTokenId).to.equal(1);
       expect(auctionInfo.seller).to.equal(deployer.address);
       expect(auctionInfo.startPrice).to.equal(ethers.parseEther("0.1"));

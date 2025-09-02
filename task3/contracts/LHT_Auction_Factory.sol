@@ -210,7 +210,7 @@ contract LHT_Auction_Factory is Initializable, UUPSUpgradeable, Ownable {
     }
     
     //获取工厂合约版本信息
-    function getFactoryVersion() external view returns (
+    function getFactoryVersion() external view virtual returns (
         string memory version,
         address implementation
     ) {

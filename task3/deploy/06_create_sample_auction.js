@@ -1,9 +1,8 @@
 const { ethers } = require("hardhat");
 
-module.exports = async function ({ getNamedAccounts, deployments, getChainId }) {
+module.exports = async function ({ getNamedAccounts, deployments, network }) {
   const { log, get } = deployments;
   const { deployer, user1 } = await getNamedAccounts();
-  const chainId = await getChainId();
 
   log("🚀 开始创建示例拍卖...");
 
@@ -17,7 +16,7 @@ module.exports = async function ({ getNamedAccounts, deployments, getChainId }) 
 
     // 1. 铸造示例 NFT
     log("🎨 铸造示例 NFT...");
-    const mintTx = await nftContract.mintNFT(deployer.address, "ipfs://QmExampleNFTMetadata");
+    const mintTx = await nftContract.mintNFT(deployer, "ipfs://QmExampleNFTMetadata");
     await mintTx.wait();
     log("✅ NFT 铸造成功");
 
@@ -27,11 +26,18 @@ module.exports = async function ({ getNamedAccounts, deployments, getChainId }) 
     const createAuctionReceipt = await createAuctionTx.wait();
     
     // 获取创建的拍卖合约地址
-    const auctionCreatedEvent = createAuctionReceipt.events.find(e => e.event === 'AuctionCreated');
+    const auctionCreatedEvent = createAuctionReceipt.logs.find(log => {
+      try {
+        return factoryContract.interface.parseLog(log).name === 'AuctionCreated';
+      } catch {
+        return false;
+      }
+    });
     if (!auctionCreatedEvent) {
       throw new Error("未找到 AuctionCreated 事件");
     }
-    const auctionAddress = auctionCreatedEvent.args.auction;
+    const parsedEvent = factoryContract.interface.parseLog(auctionCreatedEvent);
+    const auctionAddress = parsedEvent.args.auction;
     log(`✅ 拍卖合约创建成功: ${auctionAddress}`);
 
     // 3. 获取拍卖合约实例
@@ -40,8 +46,8 @@ module.exports = async function ({ getNamedAccounts, deployments, getChainId }) 
     // 4. 创建示例拍卖
     log("🎯 创建示例拍卖...");
     const createAuctionTx2 = await auctionContract.createAuction(
-      nftContract.address,  // NFT 合约地址
-      1,                    // Token ID
+      lhtNFT.address,       // NFT 合约地址
+      0,                    // Token ID (从0开始)
       3600,                 // 拍卖时长 (1小时)
       ethers.parseEther("0.1"),  // 起拍价 0.1 ETH
       ethers.ZeroAddress    // ETH 拍卖

@@ -6,7 +6,7 @@ import "./LHT_Auction_Factory.sol";
 contract LHT_AuctionFactory_V2 is LHT_Auction_Factory{
 
     // 获取工厂合约版本信息
-    function getFactoryVersion() external view override returns (
+    function getFactoryVersion() external override view returns (
         string memory version,
         address implementation
     ) {

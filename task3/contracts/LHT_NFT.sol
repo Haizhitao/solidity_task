@@ -3,13 +3,10 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 contract LHT_NFT is ERC721, ERC721URIStorage, Ownable {
-    using Counters for Counters.Counter;
-    Counters.Counter private _tokenIdCounter;
-
+    uint256 private _nextTokenId;
     constructor() ERC721("LHT_NFT", "LHT") Ownable(msg.sender) {}
 
     //保障每个元数据只能铸造一个NFT
@@ -21,8 +18,7 @@ contract LHT_NFT is ERC721, ERC721URIStorage, Ownable {
 
     //铸造NFT
     function mintNFT(address recipient, string memory metadataURI) public onlyOwner onlyUniqueTokenURI(metadataURI) returns (uint256) {
-        _tokenIdCounter.increment();
-        uint256 tokenId = _tokenIdCounter.current();
+        uint256 tokenId = _nextTokenId++;
         _mint(recipient, tokenId);
         _tokenURIExists[metadataURI] = true;
         _setTokenURI(tokenId, metadataURI);

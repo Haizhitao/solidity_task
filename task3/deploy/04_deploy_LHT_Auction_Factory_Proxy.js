@@ -1,9 +1,8 @@
 const { ethers } = require("hardhat");
 
-module.exports = async function ({ getNamedAccounts, deployments, getChainId }) {
+module.exports = async function ({ getNamedAccounts, deployments, network }) {
   const { deploy, log, get } = deployments;
   const { deployer } = await getNamedAccounts();
-  const chainId = await getChainId();
 
   log("🚀 开始部署 LHT_Auction_Factory 代理合约...");
 
@@ -20,14 +19,9 @@ module.exports = async function ({ getNamedAccounts, deployments, getChainId }) 
     from: deployer,
     args: [],
     log: true,
-    waitConfirmations: chainId == "31337" ? 1 : 6,
+    waitConfirmations: network.name === "hardhat" ? 1 : 6,
     proxy: {
-      owner: deployer,
       proxyContract: "OpenZeppelinTransparentProxy",
-      viaAdminContract: {
-        name: "LHT_Auction_Factory_ProxyAdmin",
-        artifact: "ProxyAdmin",
-      },
       execute: {
         init: {
           methodName: "initialize",
@@ -40,7 +34,7 @@ module.exports = async function ({ getNamedAccounts, deployments, getChainId }) 
   log(`✅ LHT_Auction_Factory 代理合约已部署到: ${lhtAuctionFactoryProxy.address}`);
 
   // 验证合约
-  if (lhtAuctionFactoryProxy.newlyDeployed) {
+  if (lhtAuctionFactoryProxy.newlyDeployed && network.name !== "hardhat" && network.name !== "localhost") {
     log("🔍 验证合约...");
     try {
       await run("verify:verify", {

@@ -1,6 +1,4 @@
-const { ethers } = require("hardhat");
-
-module.exports = async function ({ getNamedAccounts, deployments }) {
+module.exports = async function ({ getNamedAccounts, deployments, network }) {
   const { deploy, log } = deployments;
   const { deployer } = await getNamedAccounts();
 
@@ -10,16 +8,13 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     from: deployer,
     args: [],
     log: true,
-    waitConfirmations: 1,
+    waitConfirmations: network.name === "hardhat" ? 1 : 6,
   });
 
   log(`✅ LHT_Auction_Factory 实现合约已部署到: ${lhtAuctionFactoryImplementation.address}`);
 
   // 验证合约
-  if (lhtAuctionFactoryImplementation.newlyDeployed) {
-    log("⏳ 等待区块确认...");
-    await lhtAuctionFactoryImplementation.waitForDeployment();
-    
+  if (lhtAuctionFactoryImplementation.newlyDeployed && network.name !== "hardhat" && network.name !== "localhost") {
     log("🔍 验证合约...");
     try {
       await run("verify:verify", {
