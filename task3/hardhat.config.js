@@ -2,6 +2,7 @@ require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-deploy");
 require("hardhat-gas-reporter");
 require("solidity-coverage");
+require("@openzeppelin/hardhat-upgrades");
 
 // 加载环境变量
 require("dotenv").config();

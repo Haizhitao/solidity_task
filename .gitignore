@@ -2,3 +2,5 @@ artifacts
 remix-tests
 state.json
 .deps
+/task3/.gitignore
+deployments

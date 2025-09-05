@@ -1,4 +1,4 @@
-const { ethers } = require("hardhat");
+const { ethers, upgrades } = require("hardhat");
 
 module.exports = async function ({ getNamedAccounts, deployments, network }) {
   const { deploy, log, get } = deployments;
@@ -31,14 +31,14 @@ module.exports = async function ({ getNamedAccounts, deployments, network }) {
 
     // 3. 获取已部署的 V1 工厂代理合约
     const lhtAuctionFactoryProxy = await get("LHT_Auction_Factory_Proxy");
-    const factoryContract = await ethers.getContractAt("LHT_Auction_Factory", lhtAuctionFactoryProxy.address);
+    const proxyAddress = lhtAuctionFactoryProxy.address;
 
-    // 4. 升级工厂合约到 V2
+    // 4. 使用 hardhat-upgrades 对 Transparent 代理执行升级
     log("🔄 升级工厂合约到 V2...");
     try {
-      // 使用 UUPS 升级函数
-      const upgradeTx = await factoryContract.upgradeTo(lhtAuctionFactoryV2Implementation.address);
-      await upgradeTx.wait();
+      const FactoryV2 = await ethers.getContractFactory("LHT_AuctionFactory_V2");
+      const upgraded = await upgrades.upgradeProxy(proxyAddress, FactoryV2, { kind: "transparent" });
+      await upgraded.waitForDeployment();
       log("✅ 工厂合约升级到 V2 成功");
     } catch (error) {
       log("❌ 工厂合约升级失败:", error.message);
@@ -47,12 +47,12 @@ module.exports = async function ({ getNamedAccounts, deployments, network }) {
     // 5. 验证升级后的功能
     log("🔍 验证升级后的功能...");
     try {
+      const factoryContract = await ethers.getContractAt("LHT_AuctionFactory_V2", proxyAddress);
       const factoryVersion = await factoryContract.getFactoryVersion();
       log(`📋 工厂版本信息: ${factoryVersion.version}`);
 
       // 测试 V2 的新功能 - 使用正确的接口
-      const factoryV2Contract = await ethers.getContractAt("LHT_AuctionFactory_V2", lhtAuctionFactoryProxy.address);
-      const stats = await factoryV2Contract.getFactoryStats();
+      const stats = await factoryContract.getFactoryStats();
       log(`📊 工厂统计信息: 总拍卖数=${stats.totalAuctions}, 总创建者数=${stats.totalCreators}`);
       
       log("✅ V2 新功能验证成功");
