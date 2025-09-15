@@ -1,0 +1,22 @@
+{
+  "network": "sepolia",
+  "deployer": "0xc76341B25002d55ff0B4AbD9FB1fEc974bf639A5",
+  "rewardToken": {
+    "address": "0x589C2919c058fC27b5421aAB3Ff1BaDF59555b3d",
+    "name": "RewardToken",
+    "symbol": "reward"
+  },
+  "metaNodeStake": {
+    "proxyAddress": "0xC2F2171D62713396F1876Aeb883602a85DB13A5A",
+    "startBlock": 9209156,
+    "endBlock": 10209156,
+    "metaNodePerBlock": "1000000000000000000"
+  },
+  "ethPool": {
+    "poolId": 0,
+    "weight": 1000,
+    "minDepositAmount": "1000000000000000",
+    "unstakeLockedBlocks": 10
+  },
+  "deploymentTime": "2025-09-15T14:39:03.409Z"
+}
